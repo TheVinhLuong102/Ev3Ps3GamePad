@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 __author__ = 'anton'
 
 import evdev
@@ -72,26 +73,26 @@ class MotorThread(threading.Thread):
         self.right_motor.stop()
 
 
-motor_thread = MotorThread()
-motor_thread.setDaemon(True)
-motor_thread.start()
+if __name__ == "__main__":
+    motor_thread = MotorThread()
+    motor_thread.setDaemon(True)
+    motor_thread.start()
 
+    for event in gamepad.read_loop(): #this loops infinitely
+        if event.type == 3: #A stick is moved
 
-for event in gamepad.read_loop(): #this loops infinitely
-    if event.type == 3: #A stick is moved
+            if event.code == 2: #X axis on right stick
+                side_speed = scalestick(event.value)
 
-        if event.code == 2: #X axis on right stick
-            side_speed = scalestick(event.value)
+            if event.code == 5: #Y axis on right stick
+                fwd_speed = scalestick(event.value)
 
-        if event.code == 5: #Y axis on right stick
-            fwd_speed = scalestick(event.value)
+            if event.code == 0: #X axis on right stick
+                turn_speed = -scalestick(event.value)
 
-        if event.code == 0: #X axis on right stick
-            turn_speed = -scalestick(event.value)
-
-    if event.type == 1 and event.code == 302 and event.value == 1:
-        print "X button is pressed. Break."
-        running = False
-        time.sleep(0.5) # Wait for the motor thread to finish
-        break
+        if event.type == 1 and event.code == 302 and event.value == 1:
+            print "X button is pressed. Break."
+            running = False
+            time.sleep(0.5) # Wait for the motor thread to finish
+            break
 

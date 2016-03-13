@@ -2,7 +2,7 @@
 Remote control Lego Mindstorms Ev3 Omnibot with A PS3 sixaxis dualoshock 3 gamepad
 
 # Video
-https://www.youtube.com/watch?v=brfgF3D5c4k
+https://www.youtube.com/watch?v=AReDOM4fdA0
 
 # Installation
 ```

@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
 __author__ = 'anton'
 
 import evdev
@@ -7,13 +8,14 @@ import threading
 import time
 
 #Helpers
-def clamp(n, (minn, maxn)):
+def clamp(n, range):
     """
     Given a number and a range, return the number, or the extreme it is closest to.
 
     :param n: number
     :return: number
     """
+    minn, maxn = range
     return max(min(maxn, n), minn)
 
 
@@ -35,7 +37,7 @@ def scalestick(value):
 def dc_clamp(value):
     return clamp(value,(-100,100))
 
-print "Finding ps3 controller..."
+print("Finding ps3 controller...")
 devices = [evdev.InputDevice(fn) for fn in evdev.list_devices()]
 for device in devices:
     if device.name == 'PLAYSTATION(R)3 Controller':
@@ -60,7 +62,7 @@ class MotorThread(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
-        print "Engines running!"
+        print("Engines running!")
         while running:
             self.front_motor.run_forever(duty_cycle_sp = dc_clamp(-side_speed+turn_speed))
             self.back_motor.run_forever(duty_cycle_sp = dc_clamp(side_speed+turn_speed))
@@ -91,7 +93,7 @@ if __name__ == "__main__":
                 turn_speed = -scalestick(event.value)
 
         if event.type == 1 and event.code == 302 and event.value == 1:
-            print "X button is pressed. Break."
+            print("X button is pressed. Break.")
             running = False
             time.sleep(0.5) # Wait for the motor thread to finish
             break

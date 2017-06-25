@@ -32,10 +32,7 @@ def scale(val, src, dst):
     return (float(val - src[0]) / (src[1] - src[0])) * (dst[1] - dst[0]) + dst[0]
 
 def scalestick(value):
-    return scale(value,(0,255),(-100,100))
-
-def dc_clamp(value):
-    return clamp(value,(-100,100))
+    return scale(value,(0,255),(-300,300))
 
 print("Finding ps3 controller...")
 devices = [evdev.InputDevice(fn) for fn in evdev.list_devices()]
@@ -64,10 +61,10 @@ class MotorThread(threading.Thread):
     def run(self):
         print("Engines running!")
         while running:
-            self.front_motor.run_forever(duty_cycle_sp = dc_clamp(-side_speed+turn_speed))
-            self.back_motor.run_forever(duty_cycle_sp = dc_clamp(side_speed+turn_speed))
-            self.left_motor.run_forever(duty_cycle_sp = dc_clamp(fwd_speed+turn_speed))
-            self.right_motor.run_forever(duty_cycle_sp = dc_clamp(-fwd_speed+turn_speed))
+            self.front_motor.run_forever(speed_sp=(-side_speed+turn_speed))
+            self.back_motor.run_forever(speed_sp=(side_speed+turn_speed))
+            self.left_motor.run_forever(speed_sp=(fwd_speed+turn_speed))
+            self.right_motor.run_forever(speed_sp=(-fwd_speed+turn_speed))
 
         self.front_motor.stop()
         self.back_motor.stop()

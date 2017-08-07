@@ -59,8 +59,8 @@ class MotorThread(threading.Thread):
     def run(self):
         print("Engines running!")
         while running:
-            self.left_motor.run_forever(speed_sp=(fwd_speed+side_speed))
-            self.right_motor.run_forever(speed_sp=(fwd_speed-side_speed))
+            self.left_motor.run_forever(speed_sp=(fwd_speed * - 2 + side_speed))
+            self.right_motor.run_forever(speed_sp=(fwd_speed * 2 - side_speed))
 
         self.left_motor.stop()
         self.right_motor.stop()

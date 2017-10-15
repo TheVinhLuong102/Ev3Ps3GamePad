@@ -79,7 +79,7 @@ if __name__ == "__main__":
                 side_input = scale(event.value,(0,255),(-180,180))
 
             if event.code == 5: #Y axis on right stick
-                fwd_input = scale(event.value,(0,255),(-400,400))
+                fwd_input = scale(event.value,(0,255),(-1000,1000))
 
 
         if event.type == 1 and event.code == 302 and event.value == 1:

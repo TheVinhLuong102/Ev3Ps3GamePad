@@ -56,6 +56,13 @@ class MotorThread(threading.Thread):
         self.drive_motor = ev3.MediumMotor(ev3.OUTPUT_A)
         threading.Thread.__init__(self)
 
+        # Calibrate
+        touch_sensor = ev3.TouchSensor(ev3.INPUT_1)
+        while not touch_sensor.pressed:
+            self.steer_motor.run_forever(speed_sp=-100)
+        self.steer_motor.position = -30
+        self.steer_motor.stop()
+
     def run(self):
         print("Engines running!")
         while running:

@@ -48,7 +48,7 @@ gamepad = evdev.InputDevice(ps3dev)
 side_speed = 0
 turn_speed = 0
 fwd_speed = 0
-medium_motor_speed = 400
+medium_motor_speed = 700
 running = True
 
 class MotorThread(threading.Thread):
@@ -61,8 +61,8 @@ class MotorThread(threading.Thread):
     def run(self):
         print("Engines running!")
         while running:
-            self.left_motor.run_forever(speed_sp=(fwd_speed + side_speed))
-            self.right_motor.run_forever(speed_sp=(fwd_speed - side_speed))
+            self.left_motor.run_forever(speed_sp=clamp(fwd_speed + side_speed,(-700,700)))
+            self.right_motor.run_forever(speed_sp=clamp(fwd_speed - side_speed,(-700,700)))
             self.medium_motor.run_forever(speed_sp=medium_motor_speed)
 
         self.left_motor.stop()

@@ -48,7 +48,8 @@ gamepad = evdev.InputDevice(ps3dev)
 side_speed = 0
 turn_speed = 0
 fwd_speed = 0
-medium_motor_speed = 700
+triangle_pressed_time = 0
+medium_motor_speed = 100
 running = True
 
 class MotorThread(threading.Thread):
@@ -61,9 +62,9 @@ class MotorThread(threading.Thread):
     def run(self):
         print("Engines running!")
         while running:
-            self.left_motor.run_forever(speed_sp=clamp(fwd_speed + side_speed,(-700,700)))
-            self.right_motor.run_forever(speed_sp=clamp(fwd_speed - side_speed,(-700,700)))
-            self.medium_motor.run_forever(speed_sp=medium_motor_speed)
+            self.left_motor.run_forever(speed_sp=clamp(fwd_speed + side_speed//2,(-700,700)))
+            self.right_motor.run_forever(speed_sp=clamp(fwd_speed - side_speed//2,(-700,700)))
+            self.medium_motor.run_direct(duty_cycle_sp=medium_motor_speed)
 
         self.left_motor.stop()
         self.right_motor.stop()
@@ -85,11 +86,14 @@ if __name__ == "__main__":
 
 
         if event.type == 1:
-            if event.code == 300 and event.value == 1:
-                print("Triangle button is pressed. Break.")
-                running = False
-                time.sleep(0.5) # Wait for the motor thread to finish
-                break
+            if event.code == 300:
+                if event.value == 1:
+                    triangle_pressed_time = time.time()
+                if event.value == 0 and time.time() > triangle_pressed_time + 1:
+                    print("Triangle button is pressed. Break.")
+                    running = False
+                    time.sleep(0.5) # Wait for the motor thread to finish
+                    break
             elif event.code == 302 and event.value == 1:
                 print("X button is pressed. Reversing medium motor.")
                 medium_motor_speed *= -1

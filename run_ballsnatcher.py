@@ -49,7 +49,7 @@ side_speed = 0
 turn_speed = 0
 fwd_speed = 0
 triangle_pressed_time = 0
-medium_motor_speed = 100
+medium_motor_speed = 50
 running = True
 
 class MotorThread(threading.Thread):
@@ -68,6 +68,7 @@ class MotorThread(threading.Thread):
 
         self.left_motor.stop()
         self.right_motor.stop()
+        self.medium_motor.stop()
 
 
 if __name__ == "__main__":

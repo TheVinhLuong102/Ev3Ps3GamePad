@@ -43,8 +43,6 @@ for device in devices:
 
 gamepad = evdev.InputDevice(ps3dev)
 
-
-
 side_speed = 0
 turn_speed = 0
 fwd_speed = 0

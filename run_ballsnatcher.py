@@ -49,7 +49,7 @@ side_speed = 0
 turn_speed = 0
 fwd_speed = 0
 triangle_pressed_time = 0
-medium_motor_speed = 50
+medium_motor_speed = 70
 running = True
 
 class MotorThread(threading.Thread):

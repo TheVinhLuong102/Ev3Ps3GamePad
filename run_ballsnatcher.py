@@ -63,13 +63,13 @@ class ShooterThread(threading.Thread):
         self.medium_motor.run_forever(speed_sp=300)
         while not self.touch_sensor.is_pressed:
             time.sleep(0.1)
-        self.medium_motor.run_to_rel_pos(position_sp=-180, speed_sp=300)
+        self.medium_motor.run_to_rel_pos(position_sp=200, speed_sp=600)
         while running:
             if shooting:
                 self.medium_motor.run_forever(speed_sp=700)
                 while not self.touch_sensor.is_pressed:
                     time.sleep(0.1)
-                self.medium_motor.run_to_rel_pos(position_sp=-180, speed_sp=700)
+                self.medium_motor.run_to_rel_pos(position_sp=200, speed_sp=600)
             else:
                 self.medium_motor.run_forever(speed_sp=medium_motor_speed)
 

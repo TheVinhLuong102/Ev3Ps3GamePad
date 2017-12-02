@@ -49,7 +49,8 @@ side_speed = 0
 turn_speed = 0
 fwd_speed = 0
 triangle_pressed_time = 0
-medium_motor_speed = 70
+medium_motor_speed = -300
+shooting = 0
 running = True
 
 class MotorThread(threading.Thread):
@@ -57,14 +58,24 @@ class MotorThread(threading.Thread):
         self.left_motor = ev3.LargeMotor(ev3.OUTPUT_B)
         self.right_motor = ev3.LargeMotor(ev3.OUTPUT_C)
         self.medium_motor = ev3.MediumMotor(ev3.OUTPUT_A)
+        self.touch_sensor = ev3.TouchSensor(ev3.INPUT_1)
         threading.Thread.__init__(self)
 
     def run(self):
         print("Engines running!")
+        self.medium_motor.run_forever(speed_sp=300)
+        while not self.touch_sensor.is_pressed:
+            time.sleep(0.1)
+        self.medium_motor.run_to_rel_pos(position_sp=180, speed_sp=300)
         while running:
             self.left_motor.run_forever(speed_sp=clamp(fwd_speed + side_speed//2,(-700,700)))
             self.right_motor.run_forever(speed_sp=clamp(fwd_speed - side_speed//2,(-700,700)))
-            self.medium_motor.run_direct(duty_cycle_sp=medium_motor_speed)
+            if shooting:
+                while not self.touch_sensor.is_pressed:
+                    time.sleep(0.1)
+                self.medium_motor.run_to_rel_pos(position_sp=180, speed_sp=700)
+            else:
+                self.medium_motor.run_forever(speed_sp=medium_motor_speed)
 
         self.left_motor.stop()
         self.right_motor.stop()
@@ -95,7 +106,7 @@ if __name__ == "__main__":
                     running = False
                     time.sleep(0.5) # Wait for the motor thread to finish
                     break
-            elif event.code == 302 and event.value == 1:
-                print("X button is pressed. Reversing medium motor.")
-                medium_motor_speed *= -1
+            elif event.code == 302:
+                print("X button is pressed. Shoot!")
+                shooting = event.value
 

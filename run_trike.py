@@ -58,18 +58,16 @@ class MotorThread(threading.Thread):
 
         # Calibrate
         touch_sensor = ev3.TouchSensor(ev3.INPUT_1)
-        while not touch_sensor.is_pressed:
+        while not touch_sensor.pressed:
             self.steer_motor.run_forever(speed_sp=-100)
-        self.steer_motor.position = -20
+        self.steer_motor.position = -30
         self.steer_motor.stop()
 
     def run(self):
-        global fwd_input
         print("Engines running!")
         while running:
             steer_error = side_input - self.steer_motor.position
-            self.steer_motor.run_forever(speed_sp=steer_error*2)
-            if -50 < fwd_input < 50: fwd_input = 0  #deadzone 
+            self.steer_motor.run_forever(speed_sp=steer_error)
             self.drive_motor.run_forever(speed_sp=fwd_input)
 
         self.steer_motor.stop()
@@ -85,14 +83,14 @@ if __name__ == "__main__":
         if event.type == 3: #A stick is moved
 
             if event.code == 2: #X axis on right stick
-                side_input = scale(event.value,(0,255),(-90,90))
+                side_input = scale(event.value,(0,255),(-180,180))
 
-            if event.code == 1: #Y axis on left stick
-                fwd_input = scale(event.value,(0,255),(-800,800))
+            if event.code == 5: #Y axis on right stick
+                fwd_input = scale(event.value,(0,255),(-1000,1000))
 
 
-        if event.type == 1 and event.code == 300 and event.value == 1:
-            print("Triangle button is pressed. Break.")
+        if event.type == 1 and event.code == 302 and event.value == 1:
+            print("X button is pressed. Break.")
             running = False
             time.sleep(0.5) # Wait for the motor thread to finish
             break

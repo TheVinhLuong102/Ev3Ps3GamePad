@@ -64,10 +64,10 @@ class MotorThread(threading.Thread):
         print("Engines running!")
         while running:
             rate = self.gyro.rate
-            steer_motor_target = (side_speed * fwd_speed / 50.0) * -1.2
+            steer_motor_target = (side_speed * fwd_speed / 30.0)
             steer_motor_error = self.steer_motor.position - steer_motor_target
-            left_motor_speed = clamp((fwd_speed + side_speed/3)*6.5, (-650,650))
-            right_motor_speed = clamp((fwd_speed - side_speed/3)*6.5, (-650,650))
+            left_motor_speed = clamp((fwd_speed + side_speed/3)*6.5 - rate, (-650,650))
+            right_motor_speed = clamp((fwd_speed - side_speed/3)*6.5 - rate, (-650,650))
             self.left_motor.run_forever(speed_sp=left_motor_speed)
             self.right_motor.run_forever(speed_sp=right_motor_speed)
             self.steer_motor.run_forever(speed_sp=steer_motor_error * -1.2)

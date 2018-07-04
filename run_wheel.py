@@ -70,10 +70,11 @@ class MotorThread(threading.Thread):
             right_motor_speed = clamp((fwd_speed - side_speed/3)*6.5 - rate, (-650,650))
             self.left_motor.run_forever(speed_sp=left_motor_speed)
             self.right_motor.run_forever(speed_sp=right_motor_speed)
-            self.steer_motor.run_forever(speed_sp=steer_motor_error * -1.2)
+            self.steer_motor.run_forever(speed_sp=steer_motor_error * -2)
             print(steer_motor_error, rate)
         self.left_motor.stop()
         self.right_motor.stop()
+        self.steer_motor.stop()
 
 
 if __name__ == "__main__":
@@ -94,6 +95,6 @@ if __name__ == "__main__":
         if event.type == 1 and event.code == 302 and event.value == 1:
             print("X button is pressed. Break.")
             running = False
-            time.sleep(0.5) # Wait for the motor thread to finish
+            time.sleep(1) # Wait for the motor thread to finish
             break
 

@@ -6,6 +6,7 @@ import evdev
 import ev3dev.auto as ev3
 import threading
 import time
+from collections import deque
 
 #Helpers
 def clamp(n, range):
@@ -64,15 +65,17 @@ class MotorThread(threading.Thread):
             time.sleep(0.015)
         self.offset /= 100
         threading.Thread.__init__(self)
+        self.rates = deque([0]*4, maxlen=4)
 
     def run(self):
         print("Engines running!")
         while running:
-            rate = self.gyro.rate - self.offset
+            self.rates += [self.gyro.rate - self.offset]
+            rate=(self.rates[0]+self.rates[3])/2
             steer_motor_target = (side_speed * fwd_speed / 30.0)
             steer_motor_error = self.steer_motor.position - steer_motor_target
-            left_motor_speed = clamp((fwd_speed + side_speed/3)*6.5 - rate*0, (-650,650))
-            right_motor_speed = clamp((fwd_speed - side_speed/3)*6.5 - rate*0, (-650,650))
+            left_motor_speed = clamp((fwd_speed + side_speed/3)*6.5 - rate*1.7, (-650,650))
+            right_motor_speed = clamp((fwd_speed - side_speed/3)*6.5 - rate*1.7, (-650,650))
             self.left_motor.run_forever(speed_sp=left_motor_speed)
             self.right_motor.run_forever(speed_sp=right_motor_speed)
             self.steer_motor.run_forever(speed_sp=steer_motor_error * -2)

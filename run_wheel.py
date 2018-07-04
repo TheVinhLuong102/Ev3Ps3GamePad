@@ -55,6 +55,7 @@ class MotorThread(threading.Thread):
         self.left_motor = ev3.LargeMotor(ev3.OUTPUT_B)
         self.right_motor = ev3.LargeMotor(ev3.OUTPUT_C)
         self.steer_motor = ev3.MediumMotor(ev3.OUTPUT_A)
+        self.steer_motor.position = 0
         self.gyro = ev3.GyroSensor(ev3.INPUT_4)
         self.gyro.mode = ev3.GyroSensor.MODE_GYRO_RATE
         threading.Thread.__init__(self)
@@ -63,14 +64,14 @@ class MotorThread(threading.Thread):
         print("Engines running!")
         while running:
             rate = self.gyro.rate
-            steer_motor_target = (side_speed * fwd_speed / 100) * -1.2
+            steer_motor_target = side_speed * -1.2
             steer_motor_error = self.steer_motor.position - steer_motor_target
-            left_motor_speed = clamp((fwd_speed + side_speed/3)*6 - rate, (-650,650))
-            right_motor_speed = clamp((fwd_speed + side_speed/3)*6 - rate, (-650,650))
+            left_motor_speed = clamp((fwd_speed + side_speed/3)*6, (-650,650))
+            right_motor_speed = clamp((fwd_speed + side_speed/3)*6, (-650,650))
             self.left_motor.run_forever(speed_sp=left_motor_speed)
             self.right_motor.run_forever(speed_sp=right_motor_speed)
-            self.steer_motor.run_forever(speed_sp=steer_motor_error * 1.5)
-
+            self.steer_motor.run_forever(speed_sp=steer_motor_error)
+            print(steer_motor_error, rate)
         self.left_motor.stop()
         self.right_motor.stop()
 

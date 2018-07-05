@@ -50,6 +50,7 @@ side_speed = 0
 turn_speed = 0
 fwd_speed = 0
 running = True
+gyro_assist = 1
 
 class MotorThread(threading.Thread):
     def __init__(self):
@@ -74,8 +75,8 @@ class MotorThread(threading.Thread):
             rate=(self.rates[0]+self.rates[3])/2
             steer_motor_target = (side_speed * fwd_speed / 30.0)
             steer_motor_error = self.steer_motor.position - steer_motor_target
-            left_motor_speed = clamp((fwd_speed + side_speed/3)*6.5 - rate*1.7, (-650,650))
-            right_motor_speed = clamp((fwd_speed - side_speed/3)*6.5 - rate*1.7, (-650,650))
+            left_motor_speed = clamp((fwd_speed + side_speed/3)*6.5 - rate*1.7*gyro_assist, (-650,650))
+            right_motor_speed = clamp((fwd_speed - side_speed/3)*6.5 - rate*1.7*gyro_assist, (-650,650))
             self.left_motor.run_forever(speed_sp=left_motor_speed)
             self.right_motor.run_forever(speed_sp=right_motor_speed)
             self.steer_motor.run_forever(speed_sp=steer_motor_error * -2)
@@ -101,9 +102,22 @@ if __name__ == "__main__":
                 fwd_speed = scalestick(event.value)
 
 
-        if event.type == 1 and event.code == 302 and event.value == 1:
-            print("X button is pressed. Break.")
-            running = False
-            time.sleep(1) # Wait for the motor thread to finish
-            break
+        if event.type == 1:
+            if event.code == 300:
+                if event.value == 1:
+                    triangle_pressed_time = time.time()
+                if event.value == 0 and time.time() > triangle_pressed_time + 0.5:
+                    print("Triangle button is pressed. Break.")
+                    running = False
+                    time.sleep(0.5) # Wait for the motor thread to finish
+                    break
 
+            elif event.code == 302:
+                if event.value == 1:
+                    cross_pressed_time = time.time()
+                if event.value == 0 and time.time() > cross_pressed_time + 0.5:
+                    if gyro_assist:
+                        gyro_assist = 0
+                    else:
+                        gyro_assist = 1
+                    print("X button. Switch gyro to {0}".format(gyro_assist))

@@ -118,7 +118,7 @@ if __name__ == "__main__":
                     break
 
             elif event.code == 301:
-                circle_button_pressed = event.code
+                circle_button_pressed = event.value
 
             elif event.code == 302:
                 if event.value == 1:

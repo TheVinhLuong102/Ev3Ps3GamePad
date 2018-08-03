@@ -72,17 +72,21 @@ class MotorThread(threading.Thread):
     def run(self):
         print("Engines running!")
         while running:
-            self.rates += [self.gyro.rate - self.offset]
-            rate=(self.rates[0]+self.rates[3])/2
+            # self.rates += [self.gyro.rate - self.offset]
+            # rate=(self.rates[0]+self.rates[3])/2
 
-            left_motor_speed = clamp((fwd_speed + side_speed/3)*7 + rate*2*gyro_assist, (-680,690))
-            right_motor_speed = clamp((fwd_speed - side_speed/3)*7 + rate*2*gyro_assist, (-680,690))
+            # left_motor_speed = clamp((fwd_speed + side_speed / 3) * 7 + rate * 2 * gyro_assist, (-680, 690))
+            # right_motor_speed = clamp((fwd_speed - side_speed / 3) * 7 + rate * 2 * gyro_assist, (-680, 690))
+
+            left_motor_speed = clamp((fwd_speed + side_speed / 3) * 7, (-680, 690))
+            right_motor_speed = clamp((fwd_speed - side_speed / 3) * 7, (-680, 690))
+
             self.left_motor.run_forever(speed_sp=left_motor_speed)
             self.right_motor.run_forever(speed_sp=right_motor_speed)
 
             tail_motor_target = circle_button_pressed * 360
             tail_motor_error = self.tail_motor.position - tail_motor_target
-            self.tail_motor.run_forever(speed_sp=tail_motor_error * -2)
+            self.tail_motor.run_forever(speed_sp=tail_motor_error * -3)
 
             time.sleep(0.015)
         self.left_motor.stop()

@@ -75,15 +75,17 @@ class MotorThread(threading.Thread):
             self.rates += [self.gyro.rate - self.offset]
             rate=(self.rates[0]+self.rates[3])/2
 
-            left_motor_speed = clamp((fwd_speed + side_speed/3)*6.5 - rate*3*gyro_assist, (-650,650))
-            right_motor_speed = clamp((fwd_speed - side_speed/3)*6.5 - rate*3*gyro_assist, (-650,650))
+            left_motor_speed = clamp((fwd_speed + side_speed/3)*6.5 - rate*1.8*gyro_assist, (-650,650))
+            right_motor_speed = clamp((fwd_speed - side_speed/3)*6.5 - rate*1.8*gyro_assist, (-650,650))
             self.left_motor.run_forever(speed_sp=left_motor_speed)
             self.right_motor.run_forever(speed_sp=right_motor_speed)
 
             tail_motor_target = circle_button_pressed * 360
-            steer_motor_error = self.tail_motor.position - tail_motor_target
-            self.tail_motor.run_forever(speed_sp=steer_motor_error * -2)
-            # print(steer_motor_error, rate)
+            print(circle_button_pressed, tail_motor_target)
+            tail_motor_error = self.tail_motor.position - tail_motor_target
+            print(tail_motor_error * -2)
+            self.tail_motor.run_forever(speed_sp=tail_motor_error * -2)
+
             time.sleep(0.015)
         self.left_motor.stop()
         self.right_motor.stop()

@@ -59,7 +59,7 @@ class MotorThread(threading.Thread):
         self.right_motor = ev3.LargeMotor(ev3.OUTPUT_C)
         self.tail_motor = ev3.MediumMotor(ev3.OUTPUT_A)
         self.tail_motor.position = 0
-        self.gyro = ev3.GyroSensor(ev3.INPUT_4)
+        self.gyro = ev3.GyroSensor(ev3.INPUT_1)
         self.gyro.mode = ev3.GyroSensor.MODE_GYRO_RATE
         self.offset = 0
         for i in range(60):
@@ -98,10 +98,10 @@ if __name__ == "__main__":
     for event in gamepad.read_loop(): #this loops infinitely
         if event.type == 3: #A stick is moved
 
-            if event.code == 2: #X axis on right stick
+            if event.code == 0: #X axis on left stick
                 side_speed = scalestick(event.value)
 
-            if event.code == 5: #Y axis on right stick
+            if event.code == 1: #Y axis on left stick
                 fwd_speed = scalestick(event.value)
 
 

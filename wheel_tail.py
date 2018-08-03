@@ -93,6 +93,7 @@ class MotorThread(threading.Thread):
             self.right_motor.run_direct(duty_cycle_sp=right_motor_dc)
 
             tail_motor_target = circle_button_pressed * -360
+            print(self.tail_motor.position)
             tail_motor_error = self.tail_motor.position - tail_motor_target
             self.tail_motor.run_direct(duty_cycle_sp=clamp(tail_motor_error, (-100, 100)))
 

@@ -84,18 +84,16 @@ class MotorThread(threading.Thread):
             rate=(self.rates[0]+self.rates[3])/2
 
             left_motor_dc = clamp((fwd_speed + side_speed / 3) + rate * gyro_assist * 0.3, (-100, 100))
-            right_motor_dc =clamp((fwd_speed - side_speed / 3) + rate * gyro_assist * 0.3, (-100, 100))
-
-            # left_motor_speed = clamp((fwd_speed + side_speed / 3) * 7, (-680, 690))
-            # right_motor_speed = clamp((fwd_speed - side_speed / 3) * 7, (-680, 690))
+            right_motor_dc = clamp((fwd_speed - side_speed / 3) + rate * gyro_assist * 0.3, (-100, 100))
 
             self.left_motor.run_direct(duty_cycle_sp=left_motor_dc)
             self.right_motor.run_direct(duty_cycle_sp=right_motor_dc)
 
             tail_motor_target = circle_button_pressed * 360
             tail_motor_error = self.tail_motor.position - tail_motor_target
+            if -10 < tail_motor_error < 10:
+                tail_motor_error = 0
             self.tail_motor.run_direct(duty_cycle_sp= -clamp(tail_motor_error, (-100, 100)))
-            print(self.tail_motor.duty_cycle)
 
             time.sleep(0.015)
         self.left_motor.stop()

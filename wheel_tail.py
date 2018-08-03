@@ -50,7 +50,7 @@ side_speed = 0
 turn_speed = 0
 fwd_speed = 0
 running = True
-gyro_assist = 1
+gyro_assist = 0
 circle_button_pressed = 0
 
 class MotorThread(threading.Thread):
@@ -58,9 +58,13 @@ class MotorThread(threading.Thread):
         self.left_motor = ev3.LargeMotor(ev3.OUTPUT_B)
         self.right_motor = ev3.LargeMotor(ev3.OUTPUT_C)
         self.tail_motor = ev3.MediumMotor(ev3.OUTPUT_A)
+        self.tail_motor.run_direct(duty_cycle_sp = -20)
+        self.tail_motor.wait_until("stalled")
+        self.tail_motor.stop()
         self.tail_motor.position = 0
         self.gyro = ev3.GyroSensor(ev3.INPUT_1)
         self.gyro.mode = ev3.GyroSensor.MODE_GYRO_RATE
+        self.gyro.auto_mode = False
         self.offset = 0
         for i in range(60):
             self.offset += self.gyro.rate
@@ -72,25 +76,25 @@ class MotorThread(threading.Thread):
     def run(self):
         print("Engines running!")
         while running:
-            try:
+            try: # Some bug in Ev3dev can cause this to crash
                 self.rates += [self.gyro.rate - self.offset]
             except:
                 pass
 
             rate=(self.rates[0]+self.rates[3])/2
 
-            left_motor_speed = clamp((fwd_speed + side_speed / 3) * 7 + rate * 2 * gyro_assist, (-680, 690))
-            right_motor_speed = clamp((fwd_speed - side_speed / 3) * 7 + rate * 2 * gyro_assist, (-680, 690))
+            left_motor_dc = clamp((fwd_speed + side_speed / 3) + rate * gyro_assist, (-100, 100))
+            right_motor_dc = clamp((fwd_speed - side_speed / 3) + rate * gyro_assist, (-100, 100))
 
             # left_motor_speed = clamp((fwd_speed + side_speed / 3) * 7, (-680, 690))
             # right_motor_speed = clamp((fwd_speed - side_speed / 3) * 7, (-680, 690))
 
-            self.left_motor.run_forever(speed_sp=left_motor_speed)
-            self.right_motor.run_forever(speed_sp=right_motor_speed)
+            self.left_motor.run_direct(duty_cycle_sp=left_motor_dc)
+            self.right_motor.run_direct(duty_cycle_sp=right_motor_dc)
 
             tail_motor_target = circle_button_pressed * 360
             tail_motor_error = self.tail_motor.position - tail_motor_target
-            self.tail_motor.run_forever(speed_sp=tail_motor_error * -3)
+            self.tail_motor.run_direct(duty_cycle_sp= clamp(tail_motor_error, (-100, 100)))
 
             time.sleep(0.015)
         self.left_motor.stop()

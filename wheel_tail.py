@@ -92,9 +92,9 @@ class MotorThread(threading.Thread):
             self.left_motor.run_direct(duty_cycle_sp=left_motor_dc)
             self.right_motor.run_direct(duty_cycle_sp=right_motor_dc)
 
-            tail_motor_target = circle_button_pressed * 360
+            tail_motor_target = circle_button_pressed * -360
             tail_motor_error = self.tail_motor.position - tail_motor_target
-            self.tail_motor.run_direct(duty_cycle_sp= clamp(tail_motor_error, (-100, 100)))
+            self.tail_motor.run_direct(duty_cycle_sp=clamp(tail_motor_error, (-100, 100)))
 
             time.sleep(0.015)
         self.left_motor.stop()

@@ -72,14 +72,18 @@ class MotorThread(threading.Thread):
     def run(self):
         print("Engines running!")
         while running:
-            # self.rates += [self.gyro.rate - self.offset]
-            # rate=(self.rates[0]+self.rates[3])/2
+            try:
+                self.rates += [self.gyro.rate - self.offset]
+            except:
+                pass
 
-            # left_motor_speed = clamp((fwd_speed + side_speed / 3) * 7 + rate * 2 * gyro_assist, (-680, 690))
-            # right_motor_speed = clamp((fwd_speed - side_speed / 3) * 7 + rate * 2 * gyro_assist, (-680, 690))
+            rate=(self.rates[0]+self.rates[3])/2
 
-            left_motor_speed = clamp((fwd_speed + side_speed / 3) * 7, (-680, 690))
-            right_motor_speed = clamp((fwd_speed - side_speed / 3) * 7, (-680, 690))
+            left_motor_speed = clamp((fwd_speed + side_speed / 3) * 7 + rate * 2 * gyro_assist, (-680, 690))
+            right_motor_speed = clamp((fwd_speed - side_speed / 3) * 7 + rate * 2 * gyro_assist, (-680, 690))
+
+            # left_motor_speed = clamp((fwd_speed + side_speed / 3) * 7, (-680, 690))
+            # right_motor_speed = clamp((fwd_speed - side_speed / 3) * 7, (-680, 690))
 
             self.left_motor.run_forever(speed_sp=left_motor_speed)
             self.right_motor.run_forever(speed_sp=right_motor_speed)

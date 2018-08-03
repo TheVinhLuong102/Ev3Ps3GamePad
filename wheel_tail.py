@@ -58,7 +58,7 @@ class MotorThread(threading.Thread):
         self.left_motor = ev3.LargeMotor(ev3.OUTPUT_B)
         self.right_motor = ev3.LargeMotor(ev3.OUTPUT_C)
         self.tail_motor = ev3.MediumMotor(ev3.OUTPUT_A)
-        self.tail_motor.run_direct(duty_cycle_sp = -20)
+        self.tail_motor.run_direct(duty_cycle_sp = -40)
         self.tail_motor.wait_until("stalled")
         self.tail_motor.stop()
         self.tail_motor.position = 0

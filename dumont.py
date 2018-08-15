@@ -77,7 +77,7 @@ class MotorThread(threading.Thread):
                 self.tail_motor.position = trim
                 trim = 0
 
-            tail_motor_target = -side_speed/2
+            tail_motor_target = -side_speed*1.5
             tail_motor_error = self.tail_motor.position - tail_motor_target
             if -3 < tail_motor_error < 3:
                 tail_motor_error = 0
@@ -118,10 +118,10 @@ if __name__ == "__main__":
                 circle_button_pressed = event.value
 
             elif event.code == 298 and event.value == 1: #left shoulder button. Trim steering
-                trim = 3
+                trim = 10
 
             elif event.code == 299 and event.value == 1: #right shoulder button
-                trim = -3
+                trim = -10
 
             elif event.code == 302:
                 if event.value == 1:

@@ -67,8 +67,8 @@ class MotorThread(threading.Thread):
         print("Engines running!")
         while running:
 
-            left_motor_dc = -fwd_speed
-            right_motor_dc = -fwd_speed
+            left_motor_dc = fwd_speed
+            right_motor_dc = fwd_speed
 
             self.left_motor.run_direct(duty_cycle_sp=left_motor_dc)
             self.right_motor.run_direct(duty_cycle_sp=right_motor_dc)
@@ -77,11 +77,11 @@ class MotorThread(threading.Thread):
                 self.tail_motor.position = trim
                 trim = 0
 
-            tail_motor_target = side_speed/3
+            tail_motor_target = -side_speed/2
             tail_motor_error = self.tail_motor.position - tail_motor_target
             if -3 < tail_motor_error < 3:
                 tail_motor_error = 0
-            self.tail_motor.run_direct(duty_cycle_sp= -clamp(tail_motor_error*3, (-100, 100)))
+            self.tail_motor.run_direct(duty_cycle_sp= -clamp(tail_motor_error*4, (-100, 100)))
 
             time.sleep(0.015)
         self.left_motor.stop()
@@ -95,7 +95,6 @@ if __name__ == "__main__":
     motor_thread.start()
 
     for event in gamepad.read_loop(): #this loops infinitely
-        print(event.type)
         if event.type == 3: #A stick is moved
 
             if event.code == 0: #X axis on left stick

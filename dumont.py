@@ -63,7 +63,7 @@ class MotorThread(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
-        global trim, fwd_speed, side_speed
+        global trim
         print("Engines running!")
         while running:
 
@@ -95,6 +95,7 @@ if __name__ == "__main__":
     motor_thread.start()
 
     for event in gamepad.read_loop(): #this loops infinitely
+        print(event.type)
         if event.type == 3: #A stick is moved
 
             if event.code == 0: #X axis on left stick

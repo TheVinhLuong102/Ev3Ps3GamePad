@@ -63,6 +63,7 @@ class MotorThread(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
+        global trim, fwd_speed, side_speed
         print("Engines running!")
         while running:
 

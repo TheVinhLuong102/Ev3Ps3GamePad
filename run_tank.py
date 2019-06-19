@@ -1,87 +1,72 @@
-#!/usr/bin/env python3
+#!/usr/bin/env pybricks-micropython
 
-__author__ = 'anton'
+from pybricks import ev3brick as brick
+from pybricks.ev3devices import (Motor, TouchSensor, ColorSensor,
+                                 InfraredSensor, UltrasonicSensor, GyroSensor)
+from pybricks.parameters import (Port, Stop, Direction, Button, Color,
+                                 SoundFile, ImageFile, Align)
+from pybricks.tools import print, wait, StopWatch
+from pybricks.robotics import DriveBase
 
-import evdev
-import ev3dev.auto as ev3
-import threading
-import time
+import struct
 
-#Helpers
-def clamp(n, range):
-    """
-    Given a number and a range, return the number, or the extreme it is closest to.
+# Declare motors 
+left_motor = Motor(Port.B)
+right_motor = Motor(Port.C)
 
-    :param n: number
-    :return: number
-    """
-    minn, maxn = range
-    return max(min(maxn, n), minn)
+# Initialize variables. 
+# Assuming sticks are in the middle when starting.
+right_stick_x = 124
+right_stick_y = 124
 
 
+# A helper function for converting stick values (0 - 255)
+# to more usable numbers (-100 - 100)
 def scale(val, src, dst):
     """
     Scale the given value from the scale of src to the scale of dst.
-
+ 
     val: float or int
     src: tuple
     dst: tuple
-
-    example: print scale(99, (0.0, 99.0), (-1.0, +1.0))
+ 
+    example: print(scale(99, (0.0, 99.0), (-1.0, +1.0)))
     """
     return (float(val - src[0]) / (src[1] - src[0])) * (dst[1] - dst[0]) + dst[0]
-
-def scalestick(value):
-    return scale(value,(0,255),(-300,300))
-
-print("Finding ps3 controller...")
-devices = [evdev.InputDevice(fn) for fn in evdev.list_devices()]
-for device in devices:
-    if device.name == 'PLAYSTATION(R)3 Controller':
-        ps3dev = device.fn
-
-
-gamepad = evdev.InputDevice(ps3dev)
-
-side_speed = 0
-turn_speed = 0
-fwd_speed = 0
-running = True
-
-class MotorThread(threading.Thread):
-    def __init__(self):
-        self.left_motor = ev3.LargeMotor(ev3.OUTPUT_B)
-        self.right_motor = ev3.LargeMotor(ev3.OUTPUT_C)
-        threading.Thread.__init__(self)
-
-    def run(self):
-        print("Engines running!")
-        while running:
-            self.left_motor.run_forever(speed_sp=(fwd_speed + side_speed))
-            self.right_motor.run_forever(speed_sp=(fwd_speed - side_speed))
-
-        self.left_motor.stop()
-        self.right_motor.stop()
-
-
-if __name__ == "__main__":
-    motor_thread = MotorThread()
-    motor_thread.setDaemon(True)
-    motor_thread.start()
-
-    for event in gamepad.read_loop(): #this loops infinitely
-        if event.type == 3: #A stick is moved
-
-            if event.code == 2: #X axis on right stick
-                side_speed = scalestick(event.value)
-
-            if event.code == 5: #Y axis on right stick
-                fwd_speed = scalestick(event.value)
-
-
-        if event.type == 1 and event.code == 302 and event.value == 1:
-            print("X button is pressed. Break.")
-            running = False
-            time.sleep(0.5) # Wait for the motor thread to finish
-            break
-
+ 
+ 
+# Find the PS3 Gamepad:
+# /dev/input/event3 is the usual file handler for the gamepad.
+# look at contents of /proc/bus/input/devices if it doesn't work.
+infile_path = "/dev/input/event3"
+ 
+# open file in binary mode
+in_file = open(infile_path, "rb")
+ 
+# Read from the file
+# long int, long int, unsigned short, unsigned short, unsigned int
+FORMAT = 'llHHI'    
+EVENT_SIZE = struct.calcsize(FORMAT)
+event = in_file.read(EVENT_SIZE)
+ 
+while event:
+    (tv_sec, tv_usec, ev_type, code, value) = struct.unpack(FORMAT, event)
+    if ev_type == 3 and code == 3:
+        right_stick_x = value
+    if ev_type == 3 and code == 4:
+        right_stick_y = value
+ 
+    # Scale stick positions to -100,100
+    forward = scale(right_stick_y, (0,255), (100,-100))
+    left = scale(right_stick_x, (0,255), (100,-100))
+ 
+    # Set motor voltages. If we're steering left, the left motor
+    # must run backwards so it has a -left component
+    # It has a forward component for going forward too. 
+    left_motor.dc(forward - left)
+    right_motor.dc(forward + left)
+ 
+    # Finally, read another event
+    event = in_file.read(EVENT_SIZE)
+ 
+in_file.close()
